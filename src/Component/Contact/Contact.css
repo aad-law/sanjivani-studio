@@ -308,4 +308,40 @@
   .contact-container {
     padding: 30px 20px;
   }
+
+}
+
+@media (max-width: 480px) {
+  .contact-page {
+    padding: 80px 15px 40px;
+  }
+
+  .contact-container {
+    padding: 30px 20px;
+    border-radius: 16px;
+  }
+
+  .contact-title {
+    font-size: 2.2rem;
+  }
+
+  .contact-left h2,
+  .contact-right h2 {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .info-item {
+    padding: 10px;
+  }
+
+  .info-item span {
+    font-size: 15px;
+  }
+
+  .contact-form button {
+    width: 100%;
+    padding: 14px;
+    font-size: 1rem;
+  }
 }

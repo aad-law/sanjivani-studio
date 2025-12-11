@@ -14,15 +14,23 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
+    // Lock scroll when component mounts
+    document.body.style.overflow = 'hidden';
 
-    const playPromise = v.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => { });
+    const v = videoRef.current;
+    if (v) {
+      const playPromise = v.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => { });
+      }
     }
 
     setTimeout(() => setIsVisible(true), 100);
+
+    // cleanup: Unlock scroll when component unmounts
+    return () => {
+      document.body.style.overflow = 'auto'; // or 'unset'
+    };
   }, []);
 
   return (

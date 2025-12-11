@@ -112,7 +112,10 @@ const Movements = () => {
   }
 
   return (
-    <div className="movements-container">
+    <div
+      className="movements-container"
+      onContextMenu={(e) => e.preventDefault()} // Disable right-click globally in this component
+    >
       <div className="movements-content">
         {/* Header */}
         <div className="movements-header">
@@ -200,7 +203,7 @@ const Movements = () => {
               className="back-button"
               onClick={() => setSelectedCategory(null)}
             >
-              ← Back to Categories
+              ← Back
             </button>
 
             <div className="gallery-header">

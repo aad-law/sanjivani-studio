@@ -181,34 +181,57 @@
    ============================================ */
 @media (max-width: 480px) {
   .navbar {
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 0.8rem;
+    background: rgba(26, 10, 46, 0.95);
+    /* Always darker on mobile for readability */
+    backdrop-filter: blur(20px);
   }
 
   .navbar-scrolled {
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.8rem;
   }
 
   .navbar-container {
-    gap: 0.5rem;
-    grid-template-columns: auto 1fr auto;
+    gap: 0.2rem;
+    grid-template-columns: 1fr auto 1fr;
+    /* Balance left/right evenly */
+  }
+
+  /* Center the logo container */
+  .nav-center {
+    justify-content: center;
+  }
+
+  /* Ensure links are centered in their cells */
+  .nav-left {
+    justify-content: center;
+  }
+
+  .nav-right {
+    justify-content: center;
   }
 
   .navbar-logo {
-    height: 40px;
+    height: 45px;
+    /* Slightly larger for visibility */
+    transition: none;
+    /* simpler on mobile */
   }
 
   .navbar-scrolled .navbar-logo {
-    height: 36px;
+    height: 40px;
   }
 
   .nav-link {
-    font-size: 0.75rem;
-    padding: 0.3rem 0.5rem;
+    font-size: 0.7rem;
+    padding: 0.3rem 0.4rem;
     letter-spacing: 0.05em;
+    white-space: nowrap;
+    /* Prevent wrapping */
   }
 
   .nav-link::before {
-    height: 1.5px;
+    height: 2px;
   }
 }
 

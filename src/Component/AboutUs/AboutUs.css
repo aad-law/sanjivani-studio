@@ -351,4 +351,47 @@
   .cta-section {
     padding: 60px 24px;
   }
+
+}
+
+@media (max-width: 480px) {
+  .heroo-section {
+    padding: 80px 20px 60px;
+  }
+
+  .heroo-title {
+    font-size: 2.8rem;
+    margin-bottom: 20px;
+  }
+
+  .heroo-subtitle {
+    font-size: 1rem;
+    margin-bottom: 40px;
+    padding: 0 10px;
+  }
+
+  .services-section,
+  .why-choose-section,
+  .cta-section {
+    padding: 60px 20px;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .section-description {
+    font-size: 0.95rem;
+  }
+
+  /* Adjust grid for small mobile screens */
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-button {
+    padding: 16px 36px;
+    font-size: 1rem;
+    width: 100%;
+  }
 }
