@@ -1,0 +1,546 @@
+/* Movements Gallery - Festival Celebration Theme */
+
+.movements-container {
+    min-height: 100vh;
+    min-width: 100vw;
+    background: linear-gradient(180deg,
+            #1a0a2e 0%,
+            #2d1b4e 30%,
+            #4a1942 60%,
+            #1a0a2e 100%);
+    padding-top: 120px;
+    padding-bottom: 80px;
+    position: relative;
+}
+
+/* Festive background decorations */
+.movements-container::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(circle at 15% 25%, rgba(255, 107, 157, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 75%, rgba(255, 215, 0, 0.06) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(138, 43, 226, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Loading Screen */
+.loading-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    color: rgba(255, 255, 255, 0.5);
+    gap: 20px;
+}
+
+.loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid rgba(255, 107, 157, 0.2);
+    border-top-color: #ff6b9d;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.movements-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Header - Festive Style */
+.movements-header {
+    text-align: center;
+    margin-bottom: 80px;
+}
+
+.header-badge {
+    display: inline-block;
+    padding: 10px 24px;
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.2) 0%, rgba(255, 215, 0, 0.1) 100%);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 30px;
+    color: #ffd700;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.15);
+}
+
+.movements-title {
+    font-size: clamp(3rem, 7vw, 5rem);
+    font-weight: 800;
+    background: linear-gradient(135deg, #ffffff 0%, #ffd700 50%, #ff6b9d 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 20px;
+    letter-spacing: -2px;
+    line-height: 1.1;
+    filter: drop-shadow(0 4px 20px rgba(255, 215, 0, 0.2));
+}
+
+.movements-subtitle {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.6);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Zig Zag Layout */
+.categories-zigzag {
+    display: flex;
+    flex-direction: column;
+    gap: 120px;
+}
+
+.zigzag-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+}
+
+.zigzag-row.row-reverse {
+    direction: rtl;
+}
+
+.zigzag-row.row-reverse>* {
+    direction: ltr;
+}
+
+/* Image Side - Festival Frame */
+.zigzag-image {
+    position: relative;
+    aspect-ratio: 4/3;
+    border-radius: 24px;
+    overflow: hidden;
+    cursor: pointer;
+    background: rgba(255, 107, 157, 0.05);
+    border: 2px solid rgba(255, 215, 0, 0.15);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.3),
+        0 0 40px rgba(255, 107, 157, 0.1);
+    transition: all 0.4s ease;
+}
+
+.zigzag-image:hover {
+    border-color: rgba(255, 215, 0, 0.4);
+    box-shadow:
+        0 25px 80px rgba(0, 0, 0, 0.4),
+        0 0 60px rgba(255, 107, 157, 0.2);
+}
+
+.category-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.zigzag-image:hover .category-img {
+    transform: scale(1.08);
+}
+
+.category-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
+    gap: 12px;
+}
+
+.placeholder-icon {
+    font-size: 4rem;
+    opacity: 0.4;
+}
+
+.placeholder-text {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 14px;
+}
+
+.image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(26, 10, 46, 0.9) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 30px;
+}
+
+.zigzag-image:hover .image-overlay {
+    opacity: 1;
+}
+
+.view-text {
+    color: #ffd700;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+/* Text Side - Festive */
+.zigzag-text {
+    padding: 20px 0;
+}
+
+.category-number {
+    display: block;
+    font-size: 5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.2) 0%, rgba(255, 215, 0, 0.1) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: -15px;
+    font-family: 'Georgia', serif;
+}
+
+.category-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 12px;
+    letter-spacing: -1px;
+}
+
+.category-tagline {
+    font-size: 1.1rem;
+    background: linear-gradient(135deg, #ff6b9d 0%, #ffd700 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 500;
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.category-description {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.8;
+    margin-bottom: 32px;
+    max-width: 480px;
+}
+
+.category-meta {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.photo-count {
+    color: rgba(255, 215, 0, 0.6);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.explore-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background: transparent;
+    border: 2px solid rgba(255, 107, 157, 0.5);
+    border-radius: 30px;
+    color: #ff6b9d;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.explore-btn:hover {
+    background: linear-gradient(135deg, #ff6b9d 0%, #ffd700 100%);
+    color: #1a0a2e;
+    border-color: transparent;
+    box-shadow: 0 10px 30px rgba(255, 107, 157, 0.3);
+}
+
+.btn-arrow {
+    transition: transform 0.3s ease;
+}
+
+.explore-btn:hover .btn-arrow {
+    transform: translateX(4px);
+}
+
+/* Back Button */
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: rgba(255, 107, 157, 0.1);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: 30px;
+    color: #ffd700;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 40px;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background: rgba(255, 107, 157, 0.2);
+    border-color: #ff6b9d;
+    transform: translateX(-5px);
+}
+
+/* Gallery Header */
+.gallery-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.gallery-header h2 {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, #ffffff 0%, #ffd700 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.gallery-header p {
+    background: linear-gradient(135deg, #ff6b9d 0%, #ffd700 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 1.1rem;
+    font-style: italic;
+}
+
+/* Photos Grid */
+.photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.photo-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    background: rgba(255, 107, 157, 0.05);
+    border: 1px solid rgba(255, 215, 0, 0.1);
+    transition: all 0.4s ease;
+}
+
+.photo-item:hover {
+    border-color: rgba(255, 215, 0, 0.3);
+    box-shadow: 0 15px 40px rgba(255, 107, 157, 0.2);
+}
+
+.photo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.photo-item:hover .photo-image {
+    transform: scale(1.1);
+}
+
+/* No Content */
+.no-content {
+    text-align: center;
+    padding: 100px 24px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.no-content-icon {
+    font-size: 5rem;
+    margin-bottom: 24px;
+    opacity: 0.4;
+}
+
+.no-content h3 {
+    font-size: 1.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 12px;
+}
+
+.no-content p {
+    font-size: 1.1rem;
+}
+
+/* Lightbox - Festival Style */
+.lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(26, 10, 46, 0.98);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: fadeIn 0.3s ease;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    background: rgba(255, 107, 157, 0.2);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 50%;
+    color: #ffd700;
+    font-size: 32px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-close:hover {
+    background: #ff6b9d;
+    border-color: #ff6b9d;
+    color: #1a0a2e;
+    transform: rotate(90deg);
+}
+
+.lightbox-image {
+    max-width: 90vw;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow:
+        0 25px 80px rgba(0, 0, 0, 0.5),
+        0 0 60px rgba(255, 107, 157, 0.2);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Responsive - Tablet */
+@media (max-width: 1024px) {
+    .movements-content {
+        padding: 0 24px;
+    }
+
+    .zigzag-row {
+        gap: 50px;
+    }
+
+    .categories-zigzag {
+        gap: 100px;
+    }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+    .movements-container {
+        padding-top: 100px;
+    }
+
+    .movements-header {
+        margin-bottom: 50px;
+    }
+
+    .zigzag-row {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .zigzag-row.row-reverse {
+        direction: ltr;
+    }
+
+    .categories-zigzag {
+        gap: 80px;
+    }
+
+    .zigzag-image {
+        aspect-ratio: 16/10;
+    }
+
+    .category-number {
+        font-size: 3rem;
+        margin-bottom: -10px;
+    }
+
+    .category-title {
+        font-size: 1.8rem;
+    }
+
+    .category-description {
+        font-size: 0.95rem;
+    }
+
+    .category-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .photos-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .photo-item {
+        border-radius: 12px;
+    }
+
+    .lightbox {
+        padding: 16px;
+    }
+
+    .lightbox-close {
+        top: 16px;
+        right: 16px;
+        width: 44px;
+        height: 44px;
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .movements-content {
+        padding: 0 16px;
+    }
+
+    .photos-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,100 @@
+/* Global Styles - Festival Theme */
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* Festival Color Palette */
+  --festival-purple: #1a0a2e;
+  --festival-purple-light: #2d1b4e;
+  --festival-pink: #ff6b9d;
+  --festival-gold: #ffd700;
+  --festival-orange: #ff8c42;
+  --festival-magenta: #4a1942;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Global Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body {
+  background: linear-gradient(180deg,
+      var(--festival-purple) 0%,
+      var(--festival-purple-light) 50%,
+      var(--festival-purple) 100%);
+  color: #ffffff;
+}
+
+/* Typography */
+a {
+  font-weight: 500;
+  color: var(--festival-gold);
+  text-decoration: inherit;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--festival-pink);
+}
+
+/* Buttons */
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: var(--festival-purple);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  border-color: var(--festival-gold);
+}
+
+button:focus,
+button:focus-visible {
+  outline: 2px solid var(--festival-gold);
+  outline-offset: 2px;
+}
+
+/* Selection - Festival colors */
+::selection {
+  background: var(--festival-pink);
+  color: var(--festival-purple);
+}
+
+/* Scrollbar - Festival theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--festival-purple);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--festival-pink), var(--festival-gold));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--festival-gold);
+}
