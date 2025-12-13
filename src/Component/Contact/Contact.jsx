@@ -98,14 +98,14 @@ export default function Contact() {
                 >@sanjivani_studios</span>
               </div>
 
-              <div className="info-item">
+              {/* <div className="info-item">
                 <FaFacebook
                   className="icon"
                   onClick={() => openLink("https://facebook.com/sanjivanistudios")}
                 />
                 <span onClick={() => openLink("https://facebook.com/sanjivanistudios")}
                 >Facebook Page</span>
-              </div>
+              </div> */}
 
               <div className="info-item">
                 <FaWhatsapp

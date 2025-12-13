@@ -4,7 +4,7 @@
    CONTACT PAGE WRAPPER
 ================================ */
 .contact-page {
-  width: 100vw;
+  width: 99vw;
   min-height: 100vh;
   background: linear-gradient(180deg,
       #1a0a2e 0%,
