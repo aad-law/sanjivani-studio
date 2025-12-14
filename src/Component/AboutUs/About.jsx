@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import "./AboutUs.css";
+import ReviewMarquee from "./ReviewMarquee";
+import ReviewStats from "./ReviewStats";
 import { useNavigate } from "react-router-dom";
 
 
 
 export default function AboutUs() {
-  
+
   const [activeCard, setActiveCard] = useState(null);
   const [scrollY, setScrollY] = useState(0);
 
@@ -15,11 +17,11 @@ export default function AboutUs() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-function ContactPage() {
-  navigate("/contact");
-}
+  function ContactPage() {
+    navigate("/contact");
+  }
 
 
 
@@ -114,7 +116,7 @@ function ContactPage() {
     <div className="about-container">
       {/* heroo Section */}
       <section className="heroo-section">
-        <div 
+        <div
           className="heroo-content"
           style={{ transform: `translateY(${scrollY * 0.5}px)` }}
         >
@@ -125,7 +127,11 @@ function ContactPage() {
           <p className="heroo-subtitle">
             Professional photography services for every milestone in your life
           </p>
-      
+
+
+          <ReviewStats />
+          <ReviewMarquee />
+
         </div>
         <div className="heroo-scroll-indicator">
           <span>Scroll to explore</span>
@@ -153,7 +159,7 @@ function ContactPage() {
                 animationDelay: `${index * 0.1}s`
               }}
             >
-              <div 
+              <div
                 className="card-icon"
                 style={{ background: service.color }}
               >

@@ -116,13 +116,38 @@ const Movements = () => {
     return categoryDescriptions[categoryName] || defaultDescription;
   };
 
+  // Navigation Handlers
+  const handleNext = (e) => {
+    if (e) e.stopPropagation();
+    const currentPhotos = getPhotosForCategory(selectedCategory);
+    if (!currentPhotos.length || !selectedImage) return;
+    const currentIndex = currentPhotos.findIndex(p => p.id === selectedImage.id);
+    const nextIndex = (currentIndex + 1) % currentPhotos.length;
+    setSelectedImage(currentPhotos[nextIndex]);
+  };
+
+  const handlePrev = (e) => {
+    if (e) e.stopPropagation();
+    const currentPhotos = getPhotosForCategory(selectedCategory);
+    if (!currentPhotos.length || !selectedImage) return;
+    const currentIndex = currentPhotos.findIndex(p => p.id === selectedImage.id);
+    const prevIndex = (currentIndex - 1 + currentPhotos.length) % currentPhotos.length;
+    setSelectedImage(currentPhotos[prevIndex]);
+  };
+
+  // Keyboard Navigation
   useEffect(() => {
-    const handleEscape = (e) => {
+    if (!selectedImage) return;
+
+    const handleKeyDown = (e) => {
       if (e.key === 'Escape') setSelectedImage(null);
+      if (e.key === 'ArrowRight') handleNext();
+      if (e.key === 'ArrowLeft') handlePrev();
     };
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, []);
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImage, selectedCategory, photos]);
 
   if (loading) {
     return (
@@ -267,12 +292,16 @@ const Movements = () => {
             onClick={() => setSelectedImage(null)}
           >
             <button className="lightbox-close">×</button>
+            <button className="lightbox-nav-btn lightbox-prev" onClick={handlePrev}>‹</button>
+
             <img
               src={selectedImage.url}
               alt=""
               className="lightbox-image"
               onClick={(e) => e.stopPropagation()}
             />
+
+            <button className="lightbox-nav-btn lightbox-next" onClick={handleNext}>›</button>
           </div>
         )}
       </div>
