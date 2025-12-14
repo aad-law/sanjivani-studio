@@ -8,36 +8,52 @@ import './Movements.css';
 // Category descriptions
 const categoryDescriptions = {
   "Wedding": {
-    tagline: "Where Love Meets Lens",
-    description: "Every wedding tells a unique story of love, tradition, and celebration. We capture the stolen glances, the joyful tears, and the moments that become cherished memories for generations."
+    tagline: "Capture your special day with timeless elegance",
+    description: "From intimate ceremonies to grand celebrations, we preserve every precious moment. Every wedding tells a unique story of love, tradition, and celebration. We capture the stolen glances, the joyful tears, and the moments that become cherished memories for generations."
   },
   "Birthday": {
-    tagline: "Celebrating Life's Milestones",
+    tagline: "Make every birthday unforgettable",
     description: "From the first candle to the hundredth, birthdays are magical moments of joy. We freeze these celebrations in time, capturing the laughter, surprises, and pure happiness."
   },
   "Corporate": {
-    tagline: "Professional Excellence Captured",
-    description: "Elevate your brand with stunning corporate imagery. From conferences to team portraits, we deliver polished visuals that speak volumes about your professional identity."
+    tagline: "Professional excellence captured",
+    description: "Documentation of conferences, seminars, and business gatherings. Elevate your brand with stunning corporate imagery. From conferences to team portraits, we deliver polished visuals that speak volumes about your professional identity."
   },
   "Maternity": {
-    tagline: "The Beauty of Becoming",
+    tagline: "Celebrate the beauty of motherhood",
     description: "Pregnancy is a journey of transformation and wonder. Our maternity shoots celebrate the glow of motherhood with elegant, intimate portraits you'll treasure forever."
   },
   "Pre-Wedding": {
-    tagline: "Your Love Story Begins",
-    description: "Before the vows, there's a beautiful story waiting to be told. Our pre-wedding shoots capture the romance, chemistry, and anticipation of your journey together."
+    tagline: "Tell your love story before the big day",
+    description: "Before the vows, there's a beautiful story waiting to be told. Romantic, cinematic pre-wedding sessions at breathtaking locations capturing the romance, chemistry, and anticipation of your journey together."
   },
   "Portrait": {
-    tagline: "Your Story, Beautifully Told",
-    description: "Every face has a story. Our portrait sessions reveal character, emotion, and personality through carefully crafted images that reflect who you truly are."
+    tagline: "Express yourself through stunning portraits",
+    description: "Every face has a story. Professional headshots, lifestyle shots, or creative concepts that reveal character, emotion, and personality through carefully crafted images."
   },
   "Event": {
     tagline: "Moments Worth Remembering",
-    description: "From intimate gatherings to grand celebrations, we document events with an eye for candid moments and the energy that makes each occasion special."
+    description: "From festivals to private parties, we capture the energy, emotion, and excitement of your special events. We document events with an eye for candid moments and the energy that makes each occasion special."
   },
   "Baby": {
     tagline: "Tiny Moments, Big Memories",
-    description: "Those precious early days pass so quickly. We capture the tender moments, tiny details, and pure innocence of your little one's first chapter."
+    description: "Document the sacred moments of welcoming your little one with grace. Those precious early days pass so quickly. We capture the tender moments, tiny details, and pure innocence of your little one's first chapter."
+  },
+  "Family": {
+    tagline: "Creating lasting memories",
+    description: "Create beautiful family portraits that capture the love and connection you share. We freeze these precious moments in time for you to cherish forever."
+  },
+  "Fashion": {
+    tagline: "Style and Personality",
+    description: "Build your modeling portfolio with high-fashion editorial shoots that showcase your unique style and personality."
+  },
+  "Product": {
+    tagline: "Showcase your brand",
+    description: "Showcase your products with stunning commercial photography that drives sales and elevates your brand aesthetic."
+  },
+  "Engagement": {
+    tagline: "The beginning of forever",
+    description: "Celebrate your commitment with romantic engagement photography that marks the beginning of your journey together."
   }
 };
 
@@ -62,6 +78,14 @@ const Movements = () => {
           id: doc.id,
           ...doc.data()
         }));
+
+        // Sort by createdAt (Newest First)
+        cats.sort((a, b) => {
+          const dateA = new Date(a.createdAt || 0);
+          const dateB = new Date(b.createdAt || 0);
+          return dateB - dateA;
+        });
+
         setCategories(cats);
         setLoading(false);
       }

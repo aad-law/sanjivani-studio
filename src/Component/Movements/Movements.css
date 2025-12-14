@@ -378,7 +378,8 @@
 }
 
 /* Fix for LazyLoadImage wrapper */
-.photo-item .lazy-load-image-background {
+.photo-item .lazy-load-image-background,
+.zigzag-image .lazy-load-image-background {
     width: 100% !important;
     height: 100% !important;
     display: block !important;
