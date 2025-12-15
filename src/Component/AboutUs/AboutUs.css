@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap');
 
 .about-container {
-  min-width: 100vw;
+  width: 100%;
   min-height: 100vh;
   background: linear-gradient(180deg,
       #1a0a2e 0%,
