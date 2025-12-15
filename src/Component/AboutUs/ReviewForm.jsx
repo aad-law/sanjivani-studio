@@ -78,7 +78,6 @@ const ReviewForm = ({ onClose }) => {
                         </div>
 
                         <div className="form-group">
-                            <label>Review (Max 30 words)</label>
                             <textarea
                                 required
                                 value={formData.text}

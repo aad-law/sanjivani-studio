@@ -27,6 +27,20 @@ export default function AboutUs() {
 
 
   const services = [
+      {
+      id: 13,
+      title: "Frame Designing",
+      description: "Custom-designed frames to showcase your cherished memories with elegance and style.",
+      icon: "🖼️",
+      color: "#cd853f"
+    },
+    {
+      id: 14,
+      title: "Album Designing",
+      description: "Premium, handcrafted photo albums that tell your story page by page.",
+      icon: "📖",
+      color: "#8b4513"
+    },
     {
       id: 1,
       title: "Wedding Photography",
@@ -110,7 +124,8 @@ export default function AboutUs() {
       description: "From festivals to private parties, we capture the energy, emotion, and excitement of your special events.",
       icon: "🎉",
       color: "#fd79a8"
-    }
+    },
+  
   ];
 
   return (
