@@ -28,54 +28,41 @@ export default function AboutUs() {
 
   const services = [
       {
-      id: 13,
+      id: 1,
       title: "Frame Designing",
       description: "Custom-designed frames to showcase your cherished memories with elegance and style.",
       icon: "🖼️",
       color: "#cd853f"
     },
     {
-      id: 14,
+      id: 2,
       title: "Album Designing",
       description: "Premium, handcrafted photo albums that tell your story page by page.",
       icon: "📖",
       color: "#8b4513"
     },
     {
-      id: 1,
+      id: 3,
       title: "Wedding Photography",
       description: "Capture your special day with timeless elegance. From intimate ceremonies to grand celebrations, we preserve every precious moment.",
       icon: "💍",
       color: "#ff6b9d"
     },
     {
-      id: 2,
+      id: 4,
       title: "Corporate Events",
       description: "Professional documentation of conferences, seminars, and business gatherings. Elevate your brand with stunning corporate imagery.",
       icon: "🏢",
       color: "#4a90e2"
     },
     {
-      id: 3,
+      id: 5,
       title: "Birthday Celebrations",
       description: "Make every birthday unforgettable with vibrant, joyful photography that captures the essence of your celebration.",
       icon: "🎂",
       color: "#ffd93d"
     },
-    {
-      id: 4,
-      title: "Maternity Shoots",
-      description: "Celebrate the beauty of motherhood with elegant and intimate maternity portraits that you'll treasure forever.",
-      icon: "🤰",
-      color: "#ff9a76"
-    },
-    {
-      id: 5,
-      title: "Baby Naming Ceremony",
-      description: "Document the sacred moments of welcoming your little one with grace and cultural authenticity.",
-      icon: "👶",
-      color: "#a8e6cf"
-    },
+
     {
       id: 6,
       title: "Personal Photoshoots",
@@ -124,6 +111,20 @@ export default function AboutUs() {
       description: "From festivals to private parties, we capture the energy, emotion, and excitement of your special events.",
       icon: "🎉",
       color: "#fd79a8"
+    },
+        {
+      id: 13,
+      title: "Maternity Shoots",
+      description: "Celebrate the beauty of motherhood with elegant and intimate maternity portraits that you'll treasure forever.",
+      icon: "🤰",
+      color: "#ff9a76"
+    },
+    {
+      id: 14,
+      title: "Baby Naming Ceremony",
+      description: "Document the sacred moments of welcoming your little one with grace and cultural authenticity.",
+      icon: "👶",
+      color: "#a8e6cf"
     },
   
   ];
