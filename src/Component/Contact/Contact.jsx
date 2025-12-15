@@ -3,6 +3,7 @@ import "./Contact.css";
 import { FaInstagram, FaFacebook, FaWhatsapp } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import emailjs from '@emailjs/browser';
+import { Helmet } from "react-helmet-async";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -77,6 +78,10 @@ export default function Contact() {
 
   return (
     <div className="contact-page">
+      <Helmet>
+        <title>Contact Us | Sanjivani Studios - Book Your Shoot</title>
+        <meta name="description" content="Get in touch with Sanjivani Studios for inquiries regarding wedding photography, events, and portfolio shoots. We are just a message away." />
+      </Helmet>
       <div className="contact-container">
 
         <h1 className="contact-title">Contact Us</h1>

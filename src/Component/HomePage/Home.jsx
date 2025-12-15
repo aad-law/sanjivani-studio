@@ -1,6 +1,7 @@
 // Home.jsx
 import React, { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import Video1 from "../../assets/Logovideo.mp4";
 import "./Home.css";
 
@@ -35,6 +36,10 @@ export default function Home() {
 
   return (
     <div className="home-container">
+      <Helmet>
+        <title>Sanjivani Studios | Best Wedding Photography in Town</title>
+        <meta name="description" content="Welcome to Sanjivani Studios. We capture your life's best moments - Weddings, Events, Pre-wedding and more." />
+      </Helmet>
       <video
         ref={videoRef}
         className="home-video"

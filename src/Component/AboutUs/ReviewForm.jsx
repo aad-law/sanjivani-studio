@@ -78,23 +78,25 @@ const ReviewForm = ({ onClose }) => {
                         </div>
 
                         <div className="form-group">
-                            <label>Review (Max 15 words)</label>
+                            <label>Review (Max 30 words)</label>
                             <textarea
                                 required
                                 value={formData.text}
                                 onChange={(e) => {
-                                    const words = e.target.value.trim().split(/\s+/);
-                                    if (words.length <= 15 || e.target.value.length < formData.text.length) {
+                                    if (e.target.value.length <= 300) {
                                         setFormData({ ...formData, text: e.target.value });
                                     }
                                 }}
-                                placeholder="Share your experience (max 15 words)..."
+                                placeholder="Share your experience (max 300 characters)..."
                                 rows="4"
+                                maxLength={300}
                                 disabled={status.type === 'submitting'}
                             />
+
                             <small style={{ color: '#aaa', display: 'block', marginTop: '5px' }}>
-                                {formData.text.trim() ? formData.text.trim().split(/\s+/).length : 0}/15 words
+                                {formData.text.replace(/\s/g, '').length}/300 characters
                             </small>
+
                         </div>
 
                         {status.type === 'error' && (

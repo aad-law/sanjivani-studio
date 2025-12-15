@@ -3,6 +3,7 @@ import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import { db } from "../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
+import { Helmet } from "react-helmet-async";
 import './Movements.css';
 
 // Category descriptions
@@ -165,6 +166,10 @@ const Movements = () => {
       className="movements-container"
       onContextMenu={(e) => e.preventDefault()} // Disable right-click globally in this component
     >
+      <Helmet>
+        <title>Portfolio | Sanjivani Studios - Our Best Moments</title>
+        <meta name="description" content="Explore our portfolio of Wedding, Maternity, Corporate, and Fashion photography. See our best captured moments." />
+      </Helmet>
       <div className="movements-content">
         {/* Header */}
         <div className="movements-header">

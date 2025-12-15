@@ -165,6 +165,12 @@
   color: rgba(255, 255, 255, 0.4);
 }
 
+.contact-form input,
+.contact-form textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 /* SELECT DROPDOWN STYLING */
 .contact-form select {
   cursor: pointer;

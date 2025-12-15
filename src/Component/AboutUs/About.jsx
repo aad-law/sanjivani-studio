@@ -3,6 +3,7 @@ import "./AboutUs.css";
 import ReviewMarquee from "./ReviewMarquee";
 import ReviewStats from "./ReviewStats";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 
 
@@ -114,6 +115,10 @@ export default function AboutUs() {
 
   return (
     <div className="about-container">
+      <Helmet>
+        <title>About Us | Sanjivani Studios - Professional Photographers</title>
+        <meta name="description" content="Learn about Sanjivani Studios. We specialize in Wedding Photography, Corporate Events, Maternity Shoots, and more." />
+      </Helmet>
       {/* heroo Section */}
       <section className="heroo-section">
         <div

@@ -105,6 +105,8 @@
     font-family: inherit;
     resize: none;
     /* Prevent manual resizing */
+    user-select: text;
+    -webkit-user-select: text;
 }
 
 .form-group input:focus,
