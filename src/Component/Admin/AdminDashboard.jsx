@@ -12,6 +12,59 @@ import {
     onSnapshot
 } from "firebase/firestore";
 import "./AdminDashboard.css";
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { writeBatch } from "firebase/firestore";
+
+// Sortable Item Component
+// Sortable Item Component
+const SortableCategoryItem = ({ id, index, children }) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        setActivatorNodeRef,
+        transform,
+        transition,
+    } = useSortable({ id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        display: "flex",
+        alignItems: "center",
+        gap: "10px"
+    };
+
+    return (
+        <div ref={setNodeRef} style={style}>
+            <div
+                ref={setActivatorNodeRef}
+                {...attributes}
+                {...listeners}
+                className="drag-handle-box"
+                title="Drag to reorder"
+            >
+                {index + 1}
+            </div>
+            {children}
+        </div>
+    );
+};
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
@@ -33,6 +86,8 @@ export default function AdminDashboard() {
                     id: doc.id,
                     ...doc.data()
                 }));
+                // Sort by order, fallback to createdAt or 0
+                cats.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
                 setCategories(cats);
                 setLoading(false);
             },
@@ -63,6 +118,39 @@ export default function AdminDashboard() {
         };
     }, []);
 
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const handleDragEnd = async (event) => {
+        const { active, over } = event;
+
+        if (active.id !== over.id) {
+            setCategories((items) => {
+                const oldIndex = items.findIndex((item) => item.id === active.id);
+                const newIndex = items.findIndex((item) => item.id === over.id);
+                const newItems = arrayMove(items, oldIndex, newIndex);
+
+                // Update Firebase
+                const batch = writeBatch(db);
+                newItems.forEach((cat, index) => {
+                    const docRef = doc(db, "categories", cat.id);
+                    batch.update(docRef, { order: index });
+                });
+                batch.commit().catch(console.error);
+
+                return newItems;
+            });
+        }
+    };
+
     const handleLogout = () => {
         localStorage.removeItem("isAdminAuthenticated");
         localStorage.removeItem("adminLoginTime");
@@ -86,7 +174,8 @@ export default function AdminDashboard() {
         try {
             await addDoc(collection(db, "categories"), {
                 name: newCategory.trim(),
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                order: categories.length // Append to end
             });
             setNewCategory("");
         } catch (error) {
@@ -296,22 +385,40 @@ export default function AdminDashboard() {
                         </form>
 
                         {categories.length > 0 ? (
-                            <div className="categories-list">
-                                {categories.map((category) => (
-                                    <div key={category.id} className="category-tag">
-                                        <span>{category.name}</span>
-                                        <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px" }}>
-                                            ({photos.filter(p => p.categoryId === category.name).length} photos)
-                                        </span>
-                                        <button
-                                            className="delete-cat-btn"
-                                            onClick={(e) => handleDeleteClick(e, category.id, category.name)}
-                                        >
-                                            ×
-                                        </button>
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
+                            >
+                                <SortableContext
+                                    items={categories.map((c) => c.id)}
+                                    strategy={verticalListSortingStrategy}
+                                >
+                                    <div className="categories-list">
+                                        {categories.map((category, index) => (
+                                            <SortableCategoryItem key={category.id} id={category.id} index={index}>
+                                                <div className="category-tag">
+                                                    <span>{category.name}</span>
+                                                    <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px" }}>
+                                                        ({photos.filter((p) => p.categoryId === category.name).length} photos)
+                                                    </span>
+                                                    <div
+                                                        onPointerDown={(e) => e.stopPropagation()}
+                                                        style={{ display: "inline-block" }}
+                                                    >
+                                                        <button
+                                                            className="delete-cat-btn"
+                                                            onClick={(e) => handleDeleteClick(e, category.id, category.name)}
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </SortableCategoryItem>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
+                                </SortableContext>
+                            </DndContext>
                         ) : (
                             <div className="empty-state">
                                 <p>No categories yet. Add your first category above!</p>

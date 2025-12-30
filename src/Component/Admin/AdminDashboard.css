@@ -536,3 +536,51 @@
         opacity: 1;
     }
 }
+
+/* Update Categories List layout to column for better drag experience */
+.categories-list {
+    display: flex;
+    flex-direction: column;
+    /* Stack items vertically */
+    gap: 12px;
+}
+
+/* Drag Handle Box */
+.drag-handle-box {
+    width: 36px;
+    height: 36px;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fbbf24;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: grab;
+    touch-action: none;
+    /* Critical for touch devices */
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.drag-handle-box:hover {
+    background: rgba(251, 191, 36, 0.2);
+    border-color: #fbbf24;
+    transform: scale(1.05);
+}
+
+.drag-handle-box:active {
+    cursor: grabbing;
+    background: rgba(251, 191, 36, 0.3);
+}
+
+/* Update category tag to be full width within the sortable item */
+.category-tag {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* Ensure delete button is on far right */
+}

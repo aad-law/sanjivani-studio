@@ -80,8 +80,13 @@ const Movements = () => {
           ...doc.data()
         }));
 
-        // Sort by createdAt (Newest First)
+        // Sort by order, then createdAt (Newest First)
         cats.sort((a, b) => {
+          const orderA = a.order !== undefined ? a.order : 9999;
+          const orderB = b.order !== undefined ? b.order : 9999;
+
+          if (orderA !== orderB) return orderA - orderB;
+
           const dateA = new Date(a.createdAt || 0);
           const dateB = new Date(b.createdAt || 0);
           return dateB - dateA;
