@@ -63,6 +63,13 @@ const defaultDescription = {
   description: "Every moment has its own magic. We bring our artistic vision and technical expertise to create stunning photographs that tell your unique story."
 };
 
+const getSmartThumbnailUrl = (url) => {
+  if (!url) return "";
+  if (!url.includes("cloudinary.com")) return url;
+  // Smart crop: Fill 4:3 ratio, focus on face (or faces)
+  return url.replace("/upload/", "/upload/c_fill,g_face,w_800,h_600,q_auto,f_auto/");
+};
+
 const Movements = () => {
   const [categories, setCategories] = useState([]);
   const [photos, setPhotos] = useState([]);
@@ -209,7 +216,7 @@ const Movements = () => {
                     >
                       {coverPhoto ? (
                         <LazyLoadImage
-                          src={coverPhoto.url}
+                          src={getSmartThumbnailUrl(coverPhoto.url)}
                           alt={category.name}
                           effect="blur"
                           className="category-img"
