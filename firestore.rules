@@ -1,0 +1,46 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Categories Collection
+    // - Public can READ all categories
+    // - Only authenticated admins can CREATE, UPDATE, or DELETE
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null;
+    }
+    
+    // Photos Collection
+    // - Public can READ all photos
+    // - Only authenticated admins can CREATE, UPDATE, or DELETE
+    match /photos/{photoId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null;
+    }
+    
+    // Reviews Collection
+    // - Public can READ all reviews
+    // - Anyone can CREATE reviews (client submissions)
+    // - Only authenticated admins can UPDATE or DELETE reviews
+    // - Validation: ensure required fields are present
+    match /reviews/{reviewId} {
+      allow read: if true;
+      
+      // Allow anyone to create reviews with validation
+      allow create: if request.resource.data.keys().hasAll(['name', 'rating', 'text', 'createdAt'])
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0
+                    && request.resource.data.name.size() <= 100
+                    && request.resource.data.rating is int
+                    && request.resource.data.rating >= 1
+                    && request.resource.data.rating <= 5
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() <= 300;
+      
+      // Only authenticated users (admins) can update or delete
+      allow update, delete: if request.auth != null;
+    }
+  }
+}

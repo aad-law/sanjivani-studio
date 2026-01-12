@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { db } from "../../firebase";
+import { db, auth } from "../../firebase"; // Import auth
+import { onAuthStateChanged, signOut } from "firebase/auth"; // Import auth methods
 import {
     collection,
     doc,
@@ -30,7 +31,6 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { writeBatch } from "firebase/firestore";
 
-// Sortable Item Component
 // Sortable Item Component
 const SortableCategoryItem = ({ id, index, children }) => {
     const {
@@ -71,13 +71,32 @@ export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState("photos");
     const [categories, setCategories] = useState([]);
     const [photos, setPhotos] = useState([]);
+    const [reviews, setReviews] = useState([]);
     const [newCategory, setNewCategory] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
     const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null); // Add user state
     const [deleteModal, setDeleteModal] = useState({ show: false, id: null, name: null });
 
-    // Subscribe to real-time updates from Firestore
+    // Check Authentication Status
     useEffect(() => {
+        const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+            if (currentUser) {
+                setUser(currentUser);
+            } else {
+                // If not logged in, redirect to login page
+                navigate("/admin");
+            }
+            setLoading(false);
+        });
+
+        return () => unsubscribeAuth();
+    }, [navigate]);
+
+    // Subscribe to real-time updates from Firestore (only if user is logged in)
+    useEffect(() => {
+        if (!user) return; // Don't subscribe properly if not logged in
+
         // Listen to categories
         const unsubCategories = onSnapshot(
             collection(db, "categories"),
@@ -89,11 +108,9 @@ export default function AdminDashboard() {
                 // Sort by order, fallback to createdAt or 0
                 cats.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
                 setCategories(cats);
-                setLoading(false);
             },
             (error) => {
                 console.error("Error fetching categories:", error);
-                setLoading(false);
             }
         );
 
@@ -112,11 +129,33 @@ export default function AdminDashboard() {
             }
         );
 
+        // Listen to reviews
+        const unsubReviews = onSnapshot(
+            collection(db, "reviews"),
+            (snapshot) => {
+                const revs = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                // Sort by createdAt descending (newest first)
+                revs.sort((a, b) => {
+                    const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
+                    const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+                    return dateB - dateA;
+                });
+                setReviews(revs);
+            },
+            (error) => {
+                console.error("Error fetching reviews:", error);
+            }
+        );
+
         return () => {
             unsubCategories();
             unsubPhotos();
+            unsubReviews();
         };
-    }, []);
+    }, [user]); // Depend on user state
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -151,10 +190,13 @@ export default function AdminDashboard() {
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem("isAdminAuthenticated");
-        localStorage.removeItem("adminLoginTime");
-        navigate("/admin");
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            navigate("/admin");
+        } catch (error) {
+            console.error("Error logging out:", error);
+        }
     };
 
     // Add Category
@@ -305,6 +347,35 @@ export default function AdminDashboard() {
         }
     };
 
+    // Delete Review
+    const deleteReview = async (reviewId) => {
+        if (!window.confirm("Delete this review?")) return;
+
+        try {
+            await deleteDoc(doc(db, "reviews", reviewId));
+        } catch (error) {
+            console.error("Error deleting review:", error);
+            alert("Failed to delete review. Please try again.");
+        }
+    };
+
+    // Format date for display
+    const formatDate = (timestamp) => {
+        if (!timestamp) return 'Unknown date';
+        try {
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch (e) {
+            return 'Invalid date';
+        }
+    };
+
     if (loading) {
         return (
             <div className="admin-dashboard">
@@ -338,6 +409,12 @@ export default function AdminDashboard() {
                     >
                         📁 Categories
                     </button>
+                    <button
+                        className={`nav-btn ${activeTab === "reviews" ? "active" : ""}`}
+                        onClick={() => setActiveTab("reviews")}
+                    >
+                        ⭐ Reviews
+                    </button>
                     <button className="nav-btn logout-btn" onClick={handleLogout}>
                         🚪 Logout
                     </button>
@@ -347,11 +424,17 @@ export default function AdminDashboard() {
             {/* Main Content */}
             <main className="admin-main">
                 <div className="admin-header">
-                    <h1>{activeTab === "photos" ? "Manage Photos" : "Manage Categories"}</h1>
+                    <h1>
+                        {activeTab === "photos" ? "Manage Photos" :
+                            activeTab === "categories" ? "Manage Categories" :
+                                "Manage Reviews"}
+                    </h1>
                     <p>
                         {activeTab === "photos"
                             ? "Upload and manage your gallery photos"
-                            : "Create and organize photo categories"}
+                            : activeTab === "categories"
+                                ? "Create and organize photo categories"
+                                : "View and moderate customer reviews"}
                     </p>
                 </div>
 
@@ -364,6 +447,10 @@ export default function AdminDashboard() {
                     <div className="stat-card">
                         <div className="stat-value">{photos.length}</div>
                         <div className="stat-label">Total Photos</div>
+                    </div>
+                    <div className="stat-card">
+                        <div className="stat-value">{reviews.length}</div>
+                        <div className="stat-label">Reviews</div>
                     </div>
                 </div>
 
@@ -499,6 +586,45 @@ export default function AdminDashboard() {
                             )}
                         </div>
                     </>
+                )}
+
+                {/* Reviews Tab */}
+                {activeTab === "reviews" && (
+                    <div className="section-card">
+                        <h3 className="section-title">All Reviews ({reviews.length})</h3>
+
+                        {reviews.length > 0 ? (
+                            <div className="reviews-list">
+                                {reviews.map((review) => (
+                                    <div key={review.id} className="review-item">
+                                        <div className="review-item-header">
+                                            <div>
+                                                <strong>{review.name}</strong>
+                                                <span className="review-rating-stars">
+                                                    {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
+                                                </span>
+                                            </div>
+                                            <button
+                                                className="delete-review-btn"
+                                                onClick={() => deleteReview(review.id)}
+                                                title="Delete review"
+                                            >
+                                                🗑
+                                            </button>
+                                        </div>
+                                        <p className="review-item-text">{review.text}</p>
+                                        <small className="review-item-date">
+                                            {formatDate(review.createdAt)}
+                                        </small>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="empty-state">
+                                <p>No reviews yet. Reviews will appear here once customers submit them.</p>
+                            </div>
+                        )}
+                    </div>
                 )}
             </main>
 

@@ -63,12 +63,32 @@ const defaultDescription = {
   description: "Every moment has its own magic. We bring our artistic vision and technical expertise to create stunning photographs that tell your unique story."
 };
 
-const getSmartThumbnailUrl = (url) => {
-  if (!url) return "";
-  if (!url.includes("cloudinary.com")) return url;
-  // Smart crop: Fill 4:3 ratio, focus on face (or faces)
-  return url.replace("/upload/", "/upload/c_fill,g_face,w_800,h_600,q_auto,f_auto/");
+// Cloudinary Optimization Helper
+const getOptimizedUrl = (url, type = 'thumbnail') => {
+  if (!url || !url.includes("cloudinary.com")) return url;
+
+  // Base configuration for all images
+  // f_auto: automatic format (WebP/AVIF)
+  // q_auto: automatic quality
+  // fl_progressive: progressive JPEG loading
+  const baseParams = "f_auto,fl_progressive";
+
+  if (type === 'thumbnail') {
+    // Thumbnail: moderate quality, specific dimensions, smart crop
+    return url.replace("/upload/", `/upload/${baseParams},q_auto:eco,c_fill,g_auto,w_800,h_600/`);
+  } else if (type === 'placeholder') {
+    // Tiny blurred placeholder
+    return url.replace("/upload/", `/upload/${baseParams},q_auto:low,w_20,c_scale,e_blur:1000/`);
+  } else if (type === 'full') {
+    // Full screen: good quality, limit max width
+    return url.replace("/upload/", `/upload/${baseParams},q_auto:good,c_limit,w_1920/`);
+  }
+
+  return url;
 };
+
+// Legacy support wrapper
+const getSmartThumbnailUrl = (url) => getOptimizedUrl(url, 'thumbnail');
 
 const Movements = () => {
   const [categories, setCategories] = useState([]);
@@ -76,6 +96,7 @@ const Movements = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [imageErrors, setImageErrors] = useState({});
 
   // Subscribe to Firebase data
   useEffect(() => {
@@ -127,6 +148,17 @@ const Movements = () => {
 
   const getCategoryInfo = (categoryName) => {
     return categoryDescriptions[categoryName] || defaultDescription;
+  };
+
+  // Handle image loading errors
+  const handleImageError = (photoId, e) => {
+    console.error(`Failed to load image: ${photoId}`, e);
+    setImageErrors(prev => ({ ...prev, [photoId]: true }));
+  };
+
+  // Check if image has error
+  const hasImageError = (photoId) => {
+    return imageErrors[photoId] === true;
   };
 
   // Navigation Handlers
@@ -214,17 +246,20 @@ const Movements = () => {
                       className="zigzag-image"
                       onClick={() => setSelectedCategory(category.name)}
                     >
-                      {coverPhoto ? (
+                      {coverPhoto && !hasImageError(coverPhoto.id) ? (
                         <LazyLoadImage
                           src={getSmartThumbnailUrl(coverPhoto.url)}
                           alt={category.name}
                           effect="blur"
                           className="category-img"
+                          onError={(e) => handleImageError(coverPhoto.id, e)}
                         />
                       ) : (
                         <div className="category-placeholder">
                           <span className="placeholder-icon">📷</span>
-                          <span className="placeholder-text">No photos yet</span>
+                          <span className="placeholder-text">
+                            {coverPhoto && hasImageError(coverPhoto.id) ? 'Image unavailable' : 'No photos yet'}
+                          </span>
                         </div>
                       )}
                       <div className="image-overlay">
@@ -278,18 +313,39 @@ const Movements = () => {
             </div>
 
             <div className="photos-grid">
-              {getPhotosForCategory(selectedCategory).map((photo) => (
+              {getPhotosForCategory(selectedCategory).map((photo, index) => (
                 <div
                   key={photo.id}
                   className="photo-item"
-                  onClick={() => setSelectedImage(photo)}
+                  onClick={() => !hasImageError(photo.id) && setSelectedImage(photo)}
                 >
-                  <LazyLoadImage
-                    src={photo.url}
-                    alt=""
-                    effect="blur"
-                    className="photo-image"
-                  />
+                  <div className="category-image-container">
+                    {/* Blur-up placeholder */}
+                    <div
+                      className="blur-placeholder"
+                      style={{
+                        backgroundImage: `url(${getOptimizedUrl(photo.url, 'placeholder')})`
+                      }}
+                    />
+
+                    <LazyLoadImage
+                      src={getOptimizedUrl(photo.url, 'thumbnail')}
+                      alt={photo.id}
+                      effect="opacity"
+                      threshold={300}
+                      wrapperClassName="lazy-image-wrapper"
+                      placeholderSrc={getOptimizedUrl(photo.url, 'placeholder')}
+                      visibleByDefault={index < 3} // Eager load first 3 images
+                      onError={(e) => handleImageError(photo.id, e)}
+                    />
+
+                    {hasImageError(photo.id) && (
+                      <div className="photo-error-placeholder">
+                        <span className="error-icon">⚠️</span>
+                        <span className="error-text">Image Unavailable</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -311,12 +367,20 @@ const Movements = () => {
             <button className="lightbox-close">×</button>
             <button className="lightbox-nav-btn lightbox-prev" onClick={handlePrev}>‹</button>
 
-            <img
-              src={selectedImage.url}
-              alt=""
-              className="lightbox-image"
-              onClick={(e) => e.stopPropagation()}
-            />
+            {!hasImageError(selectedImage.id) ? (
+              <img
+                src={selectedImage.url}
+                alt=""
+                className="lightbox-image"
+                onClick={(e) => e.stopPropagation()}
+                onError={(e) => handleImageError(selectedImage.id, e)}
+              />
+            ) : (
+              <div className="lightbox-error" onClick={(e) => e.stopPropagation()}>
+                <span className="error-icon" style={{ fontSize: '48px' }}>⚠️</span>
+                <p style={{ color: 'white', marginTop: '20px' }}>Image failed to load</p>
+              </div>
+            )}
 
             <button className="lightbox-nav-btn lightbox-next" onClick={handleNext}>›</button>
           </div>

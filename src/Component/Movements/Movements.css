@@ -801,3 +801,35 @@
         right: 10px;
     }
 }
+
+/* Error Placeholders */
+.photo-error-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
+    gap: 12px;
+}
+
+.error-icon {
+    font-size: 2.5rem;
+    opacity: 0.5;
+}
+
+.error-text {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.lightbox-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    padding: 40px;
+}

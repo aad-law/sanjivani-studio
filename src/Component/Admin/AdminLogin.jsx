@@ -1,28 +1,43 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase";
 import "./AdminLogin.css";
 
-// Static admin credentials
-const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME;
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD;
 
 export default function AdminLogin() {
-    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
+        setLoading(true);
 
-        if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-            // Store authentication in localStorage
-            localStorage.setItem("isAdminAuthenticated", "true");
-            localStorage.setItem("adminLoginTime", Date.now().toString());
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            // Auth state persistence is handled automatically by Firebase
             navigate("/admin/dashboard");
-        } else {
-            setError("Invalid username or password");
+        } catch (err) {
+            console.error("Login error:", err);
+            let message = "Failed to login. Please check your credentials.";
+
+            if (err.code === 'auth/invalid-credential') {
+                message = "Invalid email or password.";
+            } else if (err.code === 'auth/user-not-found') {
+                message = "No admin account found with this email.";
+            } else if (err.code === 'auth/wrong-password') {
+                message = "Incorrect password.";
+            } else if (err.code === 'auth/too-many-requests') {
+                message = "Too many failed attempts. Please try again later.";
+            }
+
+            setError(message);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -38,13 +53,13 @@ export default function AdminLogin() {
                     {error && <div className="error-message">{error}</div>}
 
                     <div className="form-group">
-                        <label htmlFor="username">Username</label>
+                        <label htmlFor="email">Email Address</label>
                         <input
-                            type="text"
-                            id="username"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            placeholder="Enter username"
+                            type="email"
+                            id="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="admin@example.com"
                             required
                         />
                     </div>
@@ -61,8 +76,8 @@ export default function AdminLogin() {
                         />
                     </div>
 
-                    <button type="submit" className="login-btn">
-                        Login to Dashboard
+                    <button type="submit" className="login-btn" disabled={loading}>
+                        {loading ? "Logging in..." : "Login to Dashboard"}
                     </button>
                 </form>
 

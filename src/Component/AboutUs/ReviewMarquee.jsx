@@ -6,6 +6,8 @@ import { reviews as staticReviews } from '../../data/reviews'; // Fallback/Initi
 
 const ReviewMarquee = () => {
     const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         // Query last 10 reviews
@@ -15,15 +17,37 @@ const ReviewMarquee = () => {
             limit(10)
         );
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const newReviews = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+        const unsubscribe = onSnapshot(
+            q,
+            (snapshot) => {
+                try {
+                    const newReviews = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
 
-            // If no reviews in DB yet, show static reviews
-            setReviews(newReviews.length > 0 ? newReviews : staticReviews);
-        });
+                    // If no reviews in DB yet, show static reviews
+                    setReviews(newReviews.length > 0 ? newReviews : staticReviews);
+                    setLoading(false);
+                    setError(null);
+                } catch (err) {
+                    console.error("Error processing reviews:", err);
+                    setReviews(staticReviews);
+                    setLoading(false);
+                    setError(err.message);
+                }
+            },
+            (err) => {
+                console.error("Error fetching reviews:", err);
+                console.error("Error code:", err.code);
+                console.error("Error message:", err.message);
+
+                // Fallback to static reviews on error
+                setReviews(staticReviews);
+                setLoading(false);
+                setError(err.message);
+            }
+        );
 
         return () => unsubscribe();
     }, []);
@@ -34,6 +58,20 @@ const ReviewMarquee = () => {
     const renderStars = (rating) => {
         return "★".repeat(rating) + "☆".repeat(5 - rating);
     };
+
+    if (loading) {
+        return (
+            <div className="review-marquee-container">
+                <div style={{ textAlign: 'center', padding: '20px', color: 'rgba(255,255,255,0.5)' }}>
+                    Loading reviews...
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        console.warn("ReviewMarquee error (showing fallback):", error);
+    }
 
     return (
         <div className="review-marquee-container">

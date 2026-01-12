@@ -25,8 +25,22 @@ const ReviewForm = ({ onClose }) => {
                 onClose();
             }, 2000);
         } catch (error) {
-            console.error("Error adding document: ", error);
-            setStatus({ type: 'error', message: 'Something went wrong. Please try again.' });
+            console.error("Error adding review: ", error);
+            console.error("Error code:", error.code);
+            console.error("Error message:", error.message);
+
+            let errorMessage = 'Something went wrong. Please try again.';
+
+            // Provide specific error messages
+            if (error.code === 'permission-denied') {
+                errorMessage = 'Permission denied. Please check Firestore security rules.';
+            } else if (error.code === 'unavailable') {
+                errorMessage = 'Network error. Please check your connection and try again.';
+            } else if (error.message) {
+                errorMessage = `Error: ${error.message}`;
+            }
+
+            setStatus({ type: 'error', message: errorMessage });
         }
     };
 
