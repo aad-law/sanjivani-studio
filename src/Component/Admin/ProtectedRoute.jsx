@@ -1,17 +1,37 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../firebase";
 
 export default function ProtectedRoute({ children }) {
-    const isAuthenticated = localStorage.getItem("isAdminAuthenticated") === "true";
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    // Check if session is still valid (24 hours)
-    const loginTime = localStorage.getItem("adminLoginTime");
-    const isSessionValid = loginTime && (Date.now() - parseInt(loginTime)) < 24 * 60 * 60 * 1000;
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+            setLoading(false);
+        });
 
-    if (!isAuthenticated || !isSessionValid) {
-        // Clear invalid session
-        localStorage.removeItem("isAdminAuthenticated");
-        localStorage.removeItem("adminLoginTime");
+        return () => unsubscribe();
+    }, []);
+
+    if (loading) {
+        return (
+            <div style={{
+                height: "100vh",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "#1a1a2e",
+                color: "#fbbf24"
+            }}>
+                Loading...
+            </div>
+        );
+    }
+
+    if (!user) {
         return <Navigate to="/admin" replace />;
     }
 
