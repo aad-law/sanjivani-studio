@@ -63,6 +63,41 @@ const defaultDescription = {
   description: "Every moment has its own magic. We bring our artistic vision and technical expertise to create stunning photographs that tell your unique story."
 };
 
+// Calculate aspect ratio from image dimensions
+const calculateAspectRatio = (width, height) => {
+  const ratio = width / height;
+  const tolerance = 0.15;
+
+  const ratios = [
+    { name: '1:1', value: 1 / 1 },
+    { name: '4:3', value: 4 / 3 },
+    { name: '3:4', value: 3 / 4 },
+    { name: '16:9', value: 16 / 9 },
+    { name: '9:16', value: 9 / 16 },
+    { name: '3:2', value: 3 / 2 },
+    { name: '2:3', value: 2 / 3 },
+    { name: '21:9', value: 21 / 9 },
+    { name: '9:21', value: 9 / 21 },
+  ];
+
+  let closest = null;
+  let minDiff = Infinity;
+
+  for (const r of ratios) {
+    const diff = Math.abs(ratio - r.value);
+    if (diff < minDiff) {
+      minDiff = diff;
+      closest = r;
+    }
+  }
+
+  if (closest && minDiff <= tolerance) {
+    return closest.name;
+  }
+
+  return null; // Return null for custom ratios, let CSS handle it naturally
+};
+
 // Cloudinary Optimization Helper
 const getOptimizedUrl = (url, type = 'thumbnail') => {
   if (!url || !url.includes("cloudinary.com")) return url;
@@ -74,8 +109,8 @@ const getOptimizedUrl = (url, type = 'thumbnail') => {
   const baseParams = "f_auto,fl_progressive";
 
   if (type === 'thumbnail') {
-    // Thumbnail: moderate quality, specific dimensions, smart crop
-    return url.replace("/upload/", `/upload/${baseParams},q_auto:eco,c_fill,g_auto,w_800,h_600/`);
+    // Thumbnail: limit height to 1080px (covers 40vh on big screens), consistent quality
+    return url.replace("/upload/", `/upload/${baseParams},q_auto,c_limit,h_1080/`);
   } else if (type === 'placeholder') {
     // Tiny blurred placeholder
     return url.replace("/upload/", `/upload/${baseParams},q_auto:low,w_20,c_scale,e_blur:1000/`);
@@ -97,6 +132,7 @@ const Movements = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [imageErrors, setImageErrors] = useState({});
+  const [imageDimensions, setImageDimensions] = useState({});
 
   // Subscribe to Firebase data
   useEffect(() => {
@@ -159,6 +195,21 @@ const Movements = () => {
   // Check if image has error
   const hasImageError = (photoId) => {
     return imageErrors[photoId] === true;
+  };
+
+  // Handle image load to detect aspect ratio
+  const handleImageLoad = (photoId, event) => {
+    const img = event.target;
+    const width = img.naturalWidth;
+    const height = img.naturalHeight;
+
+    if (width && height) {
+      const ratio = calculateAspectRatio(width, height);
+      setImageDimensions(prev => ({
+        ...prev,
+        [photoId]: ratio
+      }));
+    }
   };
 
   // Navigation Handlers
@@ -317,6 +368,7 @@ const Movements = () => {
                 <div
                   key={photo.id}
                   className="photo-item"
+                  data-ratio={imageDimensions[photo.id] || undefined}
                   onClick={() => !hasImageError(photo.id) && setSelectedImage(photo)}
                 >
                   <div className="category-image-container">
@@ -335,8 +387,9 @@ const Movements = () => {
                       threshold={300}
                       wrapperClassName="lazy-image-wrapper"
                       placeholderSrc={getOptimizedUrl(photo.url, 'placeholder')}
-                      visibleByDefault={index < 3} // Eager load first 3 images
+                      visibleByDefault={index < 3}
                       onError={(e) => handleImageError(photo.id, e)}
+                      onLoad={(e) => handleImageLoad(photo.id, e)}
                     />
 
                     {hasImageError(photo.id) && (
