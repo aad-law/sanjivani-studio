@@ -183,7 +183,32 @@ const Movements = () => {
   };
 
   const getCategoryInfo = (categoryName) => {
-    return categoryDescriptions[categoryName] || defaultDescription;
+    // First, try to get from the category object itself (from Firestore)
+    const category = categories.find(c => c.name === categoryName);
+    if (category?.tagline && category?.description) {
+      return {
+        tagline: category.tagline,
+        description: category.description
+      };
+    }
+
+    // Fallback to hardcoded defaults (for backward compatibility)
+    const trimmedName = categoryName?.trim();
+    if (categoryDescriptions[trimmedName]) {
+      return categoryDescriptions[trimmedName];
+    }
+
+    // Try case-insensitive match
+    const matchingKey = Object.keys(categoryDescriptions).find(
+      key => key.toLowerCase() === trimmedName?.toLowerCase()
+    );
+
+    if (matchingKey) {
+      return categoryDescriptions[matchingKey];
+    }
+
+    // Final fallback to default
+    return defaultDescription;
   };
 
   // Handle image loading errors

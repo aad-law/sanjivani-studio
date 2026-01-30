@@ -8,6 +8,7 @@ import {
     getDocs,
     addDoc,
     deleteDoc,
+    updateDoc,
     query,
     where,
     onSnapshot
@@ -73,10 +74,19 @@ export default function AdminDashboard() {
     const [photos, setPhotos] = useState([]);
     const [reviews, setReviews] = useState([]);
     const [newCategory, setNewCategory] = useState("");
+    const [newTagline, setNewTagline] = useState("");
+    const [newDescription, setNewDescription] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null); // Add user state
     const [deleteModal, setDeleteModal] = useState({ show: false, id: null, name: null });
+    const [editModal, setEditModal] = useState({
+        show: false,
+        id: null,
+        name: "",
+        tagline: "",
+        description: ""
+    });
 
     // Check Authentication Status
     useEffect(() => {
@@ -202,7 +212,18 @@ export default function AdminDashboard() {
     // Add Category
     const addCategory = async (e) => {
         e.preventDefault();
-        if (!newCategory.trim()) return;
+        if (!newCategory.trim()) {
+            alert("Please enter a category name!");
+            return;
+        }
+        if (!newTagline.trim()) {
+            alert("Please enter a tagline!");
+            return;
+        }
+        if (!newDescription.trim()) {
+            alert("Please enter a description!");
+            return;
+        }
 
         const categoryExists = categories.some(
             cat => cat.name.toLowerCase() === newCategory.trim().toLowerCase()
@@ -216,10 +237,14 @@ export default function AdminDashboard() {
         try {
             await addDoc(collection(db, "categories"), {
                 name: newCategory.trim(),
+                tagline: newTagline.trim(),
+                description: newDescription.trim(),
                 createdAt: new Date().toISOString(),
                 order: categories.length // Append to end
             });
             setNewCategory("");
+            setNewTagline("");
+            setNewDescription("");
         } catch (error) {
             console.error("Error adding category:", error);
             alert("Failed to add category. Please try again.");
@@ -231,6 +256,62 @@ export default function AdminDashboard() {
         e.preventDefault();
         e.stopPropagation();
         setDeleteModal({ show: true, id: categoryId, name: categoryName });
+    };
+
+    // Open Edit Modal
+    const handleEditClick = (e, category) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setEditModal({
+            show: true,
+            id: category.id,
+            name: category.name,
+            tagline: category.tagline || "",
+            description: category.description || ""
+        });
+    };
+
+    // Update Category
+    const updateCategory = async () => {
+        const { id, name, tagline, description } = editModal;
+        if (!id || !name.trim() || !tagline.trim() || !description.trim()) {
+            alert("Please fill in all fields!");
+            return;
+        }
+
+        try {
+            const oldCategory = categories.find(c => c.id === id);
+            const oldName = oldCategory.name;
+
+            // Update category document
+            await updateDoc(doc(db, "categories", id), {
+                name: name.trim(),
+                tagline: tagline.trim(),
+                description: description.trim()
+            });
+
+            // If name changed, update all photos with this categoryId
+            if (oldName !== name.trim()) {
+                const photosQuery = query(
+                    collection(db, "photos"),
+                    where("categoryId", "==", oldName)
+                );
+                const photosSnapshot = await getDocs(photosQuery);
+
+                const batch = writeBatch(db);
+                photosSnapshot.docs.forEach(photoDoc => {
+                    batch.update(doc(db, "photos", photoDoc.id), {
+                        categoryId: name.trim()
+                    });
+                });
+                await batch.commit();
+            }
+
+            setEditModal({ show: false, id: null, name: "", tagline: "", description: "" });
+        } catch (error) {
+            console.error("Error updating category:", error);
+            alert("Failed to update category. Please try again.");
+        }
     };
 
     // Execute Deletion
@@ -462,9 +543,33 @@ export default function AdminDashboard() {
                         <form className="add-category-form" onSubmit={addCategory}>
                             <input
                                 type="text"
-                                placeholder="Enter category name (e.g., Wedding, Birthday)"
+                                placeholder="Category name (e.g., Wedding, Birthday)"
                                 value={newCategory}
                                 onChange={(e) => setNewCategory(e.target.value)}
+                            />
+                            <input
+                                type="text"
+                                placeholder="Tagline (e.g., Capture your special day)"
+                                value={newTagline}
+                                onChange={(e) => setNewTagline(e.target.value)}
+                            />
+                            <textarea
+                                placeholder="Description (2-3 sentences about this category)"
+                                value={newDescription}
+                                onChange={(e) => setNewDescription(e.target.value)}
+                                rows="3"
+                                style={{
+                                    width: '100%',
+                                    padding: '12px',
+                                    borderRadius: '8px',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    background: 'rgba(255,255,255,0.05)',
+                                    color: '#fff',
+                                    fontSize: '14px',
+                                    fontFamily: 'inherit',
+                                    resize: 'vertical',
+                                    marginBottom: '12px'
+                                }}
                             />
                             <button type="submit" className="add-btn">
                                 + Add Category
@@ -491,8 +596,36 @@ export default function AdminDashboard() {
                                                     </span>
                                                     <div
                                                         onPointerDown={(e) => e.stopPropagation()}
-                                                        style={{ display: "inline-block" }}
+                                                        style={{
+                                                            display: "flex",
+                                                            flexDirection: "row",
+                                                            alignItems: "center",
+                                                            gap: "8px"
+                                                        }}
                                                     >
+                                                        <button
+                                                            className="edit-cat-btn"
+                                                            onClick={(e) => handleEditClick(e, category)}
+                                                            title="Edit category"
+                                                            style={{
+                                                                background: 'rgba(59, 130, 246, 0.2)',
+                                                                border: '1px solid rgba(59, 130, 246, 0.3)',
+                                                                color: '#60a5fa',
+                                                                padding: '4px 10px',
+                                                                borderRadius: '6px',
+                                                                cursor: 'pointer',
+                                                                fontSize: '14px',
+                                                                transition: 'all 0.2s'
+                                                            }}
+                                                            onMouseEnter={(e) => {
+                                                                e.target.style.background = 'rgba(59, 130, 246, 0.3)';
+                                                            }}
+                                                            onMouseLeave={(e) => {
+                                                                e.target.style.background = 'rgba(59, 130, 246, 0.2)';
+                                                            }}
+                                                        >
+                                                            ✏️
+                                                        </button>
                                                         <button
                                                             className="delete-cat-btn"
                                                             onClick={(e) => handleDeleteClick(e, category.id, category.name)}
@@ -650,6 +783,90 @@ export default function AdminDashboard() {
                                 onClick={confirmDeleteCategory}
                             >
                                 Yes, Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Category Modal */}
+            {editModal.show && (
+                <div className="modal-overlay">
+                    <div className="modal-content" style={{ maxWidth: '500px' }}>
+                        <h3>Edit Category</h3>
+                        <div style={{ marginTop: '20px' }}>
+                            <label style={{ display: 'block', marginBottom: '8px', color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>
+                                Category Name
+                            </label>
+                            <input
+                                type="text"
+                                value={editModal.name}
+                                onChange={(e) => setEditModal({ ...editModal, name: e.target.value })}
+                                style={{
+                                    width: '100%',
+                                    padding: '12px',
+                                    borderRadius: '8px',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    background: 'rgba(255,255,255,0.05)',
+                                    color: '#fff',
+                                    fontSize: '14px',
+                                    marginBottom: '16px'
+                                }}
+                            />
+
+                            <label style={{ display: 'block', marginBottom: '8px', color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>
+                                Tagline
+                            </label>
+                            <input
+                                type="text"
+                                value={editModal.tagline}
+                                onChange={(e) => setEditModal({ ...editModal, tagline: e.target.value })}
+                                style={{
+                                    width: '100%',
+                                    padding: '12px',
+                                    borderRadius: '8px',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    background: 'rgba(255,255,255,0.05)',
+                                    color: '#fff',
+                                    fontSize: '14px',
+                                    marginBottom: '16px'
+                                }}
+                            />
+
+                            <label style={{ display: 'block', marginBottom: '8px', color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>
+                                Description
+                            </label>
+                            <textarea
+                                value={editModal.description}
+                                onChange={(e) => setEditModal({ ...editModal, description: e.target.value })}
+                                rows="4"
+                                style={{
+                                    width: '100%',
+                                    padding: '12px',
+                                    borderRadius: '8px',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    background: 'rgba(255,255,255,0.05)',
+                                    color: '#fff',
+                                    fontSize: '14px',
+                                    fontFamily: 'inherit',
+                                    resize: 'vertical',
+                                    marginBottom: '20px'
+                                }}
+                            />
+                        </div>
+                        <div className="modal-actions">
+                            <button
+                                className="cancel-btn"
+                                onClick={() => setEditModal({ show: false, id: null, name: "", tagline: "", description: "" })}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="confirm-delete-btn"
+                                onClick={updateCategory}
+                                style={{ background: 'rgba(59, 130, 246, 0.3)', border: '1px solid rgba(59, 130, 246, 0.5)' }}
+                            >
+                                Save Changes
                             </button>
                         </div>
                     </div>
